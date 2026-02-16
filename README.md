@@ -1,69 +1,269 @@
-# :package_description
+# Laravel PowerOffice API
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This repo can be used to scaffold a Laravel package. Follow these steps to get started:
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/tor2r/laravel-poweroffice-api.svg?style=flat-square)](https://packagist.org/packages/tor2r/laravel-poweroffice-api)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/tor2r/laravel-poweroffice-api/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/tor2r/laravel-poweroffice-api/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/tor2r/laravel-poweroffice-api/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/tor2r/laravel-poweroffice-api/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/tor2r/laravel-poweroffice-api.svg?style=flat-square)](https://packagist.org/packages/tor2r/laravel-poweroffice-api)
 
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-<!--/delete-->
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+A Laravel client library for communicating with the PowerOffice Go REST API using OAuth 2.0 Client Credentials. Provides a clean, resource-based
+interface with automatic token caching, retry logic, and comprehensive error handling.
 
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require :vendor_slug/:package_slug
-```
-
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
+composer require tor2r/laravel-poweroffice-api
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-config"
+php artisan vendor:publish --tag="laravel-poweroffice-api-config"
 ```
+
+## Configuration
+
+Set these environment variables in your `.env`:
+
+```env
+POWEROFFICE_ENVIRONMENT=demo          # "demo" or "production"
+POWEROFFICE_APP_KEY=your-app-key
+POWEROFFICE_CLIENT_KEY=your-client-key
+POWEROFFICE_SUBSCRIPTION_KEY=your-subscription-key
+```
+
+Tokens are cached for 15 minutes (configurable via `POWEROFFICE_TOKEN_TTL`). The API token expires after 20 minutes -- the 5-minute buffer prevents
+using an about-to-expire token.
 
 This is the contents of the published config file:
 
 ```php
 return [
+    'environment' => env('POWEROFFICE_ENVIRONMENT', 'demo'),
+
+    'app_key' => env('POWEROFFICE_APP_KEY'),
+    'client_key' => env('POWEROFFICE_CLIENT_KEY'),
+    'subscription_key' => env('POWEROFFICE_SUBSCRIPTION_KEY'),
+
+    'environments' => [
+        'production' => [
+            'base_url' => 'https://goapi.poweroffice.net/v2',
+            'token_url' => 'https://goapi.poweroffice.net/OAuth/Token',
+        ],
+        'demo' => [
+            'base_url' => 'https://goapi-demo.poweroffice.net/v2',
+            'token_url' => 'https://goapi-demo.poweroffice.net/OAuth/Token',
+        ],
+    ],
+
+    'token_ttl' => env('POWEROFFICE_TOKEN_TTL', 900),
 ];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag=":package_slug-views"
 ```
 
 ## Usage
 
+Access everything through the `PowerOfficeApi` facade:
+
 ```php
-$variable = new VendorName\Skeleton();
-echo $variable->echoPhrase('Hello, VendorName!');
+use Tor2r\PowerOfficeApi\Facades\PowerOfficeApi;
 ```
+
+Or inject the client directly:
+
+```php
+use Tor2r\PowerOfficeApi\PowerOfficeClient;
+
+public function __construct(private PowerOfficeClient $powerOffice) {}
+```
+
+## Available Methods
+
+### Client Methods
+
+| Method                                            | Description                                  |
+|---------------------------------------------------|----------------------------------------------|
+| `authenticate(): string`                          | Authenticate and return a fresh access token |
+| `getAccessToken(): string`                        | Get cached token (authenticates if needed)   |
+| `flushToken(): void`                              | Clear the cached token                       |
+| `get(string $endpoint, array $query = []): array` | Send a GET request                           |
+| `post(string $endpoint, array $data = []): array` | Send a POST request                          |
+| `put(string $endpoint, array $data = []): array`  | Send a PUT request                           |
+| `customers(): CustomerResource`                   | Get the customers resource                   |
+| `products(): ProductResource`                     | Get the products resource                    |
+| `salesOrders(): SalesOrderResource`               | Get the sales orders resource                |
+
+### CustomerResource
+
+| Method                                | Description                          |
+|---------------------------------------|--------------------------------------|
+| `get(int $id): array`                 | Get a single customer                |
+| `list(array $filters = []): array`    | List customers with optional filters |
+| `create(array $data): array`          | Create a customer                    |
+| `update(int $id, array $data): array` | Update a customer                    |
+
+### ProductResource
+
+| Method                                | Description                         |
+|---------------------------------------|-------------------------------------|
+| `get(int $id): array`                 | Get a single product                |
+| `list(array $filters = []): array`    | List products with optional filters |
+| `create(array $data): array`          | Create a product                    |
+| `update(int $id, array $data): array` | Update a product                    |
+
+### SalesOrderResource
+
+| Method                             | Description                             |
+|------------------------------------|-----------------------------------------|
+| `get(int $id): array`              | Get a single sales order                |
+| `list(array $filters = []): array` | List sales orders with optional filters |
+| `create(array $data): array`       | Create a sales order                    |
+
+## Examples
+
+### Customers
+
+```php
+// Get a single customer
+$customer = PowerOfficeApi::customers()->get(12345);
+
+// List customers with filters
+$customers = PowerOfficeApi::customers()->list([
+    'lastModifiedDateTimeOffsetGreaterThan' => '2025-01-01T00:00:00+00:00',
+    'isActive' => 'true',
+]);
+
+// Create a customer
+$customer = PowerOfficeApi::customers()->create([
+    'name' => 'Acme Corp',
+    'organizationNumber' => '912345678',
+    'emailAddress' => 'invoice@acme.no',
+    'invoiceAddress' => [
+        'addressLine1' => 'Storgata 1',
+        'city' => 'Oslo',
+        'zipCode' => '0150',
+        'countryCode' => 'NO',
+    ],
+]);
+
+// Update a customer
+$customer = PowerOfficeApi::customers()->update(12345, [
+    'name' => 'Acme Corp AS',
+    'emailAddress' => 'new-invoice@acme.no',
+]);
+```
+
+### Products
+
+```php
+// Get a single product
+$product = PowerOfficeApi::products()->get(100);
+
+// List all products
+$products = PowerOfficeApi::products()->list();
+
+// Create a product
+$product = PowerOfficeApi::products()->create([
+    'name' => 'Consulting Hour',
+    'description' => 'Standard consulting rate',
+    'salesPrice' => 1500.00,
+    'unitOfMeasure' => 'Hours',
+    'isActive' => true,
+]);
+
+// Update a product
+$product = PowerOfficeApi::products()->update(100, [
+    'salesPrice' => 1750.00,
+]);
+```
+
+### Sales Orders
+
+```php
+// Get a single sales order
+$order = PowerOfficeApi::salesOrders()->get(5001);
+
+// List sales orders
+$orders = PowerOfficeApi::salesOrders()->list([
+    'customerId' => 12345,
+]);
+
+// Create a sales order
+$order = PowerOfficeApi::salesOrders()->create([
+    'customerId' => 12345,
+    'orderDate' => '2025-06-01',
+    'salesOrderLines' => [
+        [
+            'productId' => 100,
+            'quantity' => 10,
+            'unitPrice' => 1500.00,
+            'description' => 'Consulting Hours - June',
+        ],
+        [
+            'productId' => 200,
+            'quantity' => 1,
+            'unitPrice' => 5000.00,
+            'description' => 'Project setup fee',
+        ],
+    ],
+]);
+```
+
+### Direct Endpoint Access
+
+For endpoints without a dedicated resource class, use the client methods directly:
+
+```php
+// GET with query parameters
+$invoices = PowerOfficeApi::get('/Invoices', [
+    'customerId' => 12345,
+    'status' => 'Draft',
+]);
+
+// POST with JSON body
+$result = PowerOfficeApi::post('/Invoices', [
+    'customerId' => 12345,
+    'invoiceLines' => [...],
+]);
+
+// PUT with JSON body
+$result = PowerOfficeApi::put('/Invoices/999', [
+    'status' => 'Approved',
+]);
+```
+
+## Error Handling
+
+The client throws three exception types:
+
+```php
+use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeAuthException;
+use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeApiException;
+use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeValidationException;
+
+try {
+    $customer = PowerOfficeApi::customers()->create($data);
+} catch (PowerOfficeValidationException $e) {
+    // 422 -- validation errors from the API
+    $e->errors;   // ['name' => ['Name is required']]
+    $e->response; // Illuminate\Http\Client\Response
+} catch (PowerOfficeAuthException $e) {
+    // OAuth failure (bad credentials, token endpoint down)
+    $e->context;  // ['status' => 401, 'body' => '...']
+} catch (PowerOfficeApiException $e) {
+    // Any other 4xx/5xx error
+    $e->response; // Illuminate\Http\Client\Response
+    $e->getCode(); // HTTP status code
+}
+```
+
+## Retry Behavior
+
+Requests automatically retry up to 3 times with exponential backoff (500ms, 1000ms, 1500ms) on:
+
+- **401** -- flushes the cached token, re-authenticates, then retries
+- **429** -- rate limited, waits and retries
+- **5xx** -- server errors, waits and retries
 
 ## Testing
 
@@ -75,18 +275,9 @@ composer test
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
 ## Credits
 
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
+- [Tor L](https://github.com/Tor2r)
 
 ## License
 
