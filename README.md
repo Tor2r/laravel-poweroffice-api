@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/tor2r/laravel-poweroffice-api/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/tor2r/laravel-poweroffice-api/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/tor2r/laravel-poweroffice-api.svg?style=flat-square)](https://packagist.org/packages/tor2r/laravel-poweroffice-api)
 
-A Laravel client library for communicating with the PowerOffice Go REST API using OAuth 2.0 Client Credentials. Provides a clean, resource-based
+A Laravel client library for communicating with the [PowerOffice Go REST API](https://developer.poweroffice.net/) using OAuth 2.0 Client Credentials. Provides a clean, resource-based
 interface with automatic token caching, retry logic, and comprehensive error handling.
 
 ## Installation
@@ -89,11 +89,16 @@ public function __construct(private PowerOfficeClient $powerOffice) {}
 | `get(string $endpoint, array $query = []): array` | Send a GET request                           |
 | `post(string $endpoint, array $data = []): array` | Send a POST request                          |
 | `put(string $endpoint, array $data = []): array`  | Send a PUT request                           |
-| `customers(): CustomerResource`                   | Get the customers resource                   |
-| `products(): ProductResource`                     | Get the products resource                    |
-| `salesOrders(): SalesOrderResource`               | Get the sales orders resource                |
 
-### CustomerResource
+### Resources
+
+| Method                              | Description                   |
+|-------------------------------------|-------------------------------|
+| `customers(): CustomerResource`     | Get the customers resource    |
+| `products(): ProductResource`       | Get the products resource     |
+| `salesOrders(): SalesOrderResource` | Get the sales orders resource |
+
+### [CustomerResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Customers)
 
 | Method                                | Description                          |
 |---------------------------------------|--------------------------------------|
@@ -102,7 +107,7 @@ public function __construct(private PowerOfficeClient $powerOffice) {}
 | `create(array $data): array`          | Create a customer                    |
 | `update(int $id, array $data): array` | Update a customer                    |
 
-### ProductResource
+### [ProductResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Products%20and%20Product%20Groups)
 
 | Method                                | Description                         |
 |---------------------------------------|-------------------------------------|
@@ -111,7 +116,7 @@ public function __construct(private PowerOfficeClient $powerOffice) {}
 | `create(array $data): array`          | Create a product                    |
 | `update(int $id, array $data): array` | Update a product                    |
 
-### SalesOrderResource
+### [SalesOrderResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Sales%20Orders)
 
 | Method                             | Description                             |
 |------------------------------------|-----------------------------------------|
@@ -135,21 +140,21 @@ $customers = PowerOfficeApi::customers()->list([
 
 // Create a customer
 $customer = PowerOfficeApi::customers()->create([
-    'name' => 'Acme Corp',
-    'organizationNumber' => '912345678',
-    'emailAddress' => 'invoice@acme.no',
-    'invoiceAddress' => [
-        'addressLine1' => 'Storgata 1',
-        'city' => 'Oslo',
-        'zipCode' => '0150',
-        'countryCode' => 'NO',
+    'Name' => 'Acme Corp',
+    'OrganizationNumber' => '912345678',
+    'EmailAddress' => 'invoice@acme.no',
+    'MailAddress' => [
+        'AddressLine1' => 'Storgata 1',
+        'City' => 'Oslo',
+        'ZipCode' => '0150',
+        'CountryCode' => 'NO',
     ],
 ]);
 
 // Update a customer
 $customer = PowerOfficeApi::customers()->update(12345, [
-    'name' => 'Acme Corp AS',
-    'emailAddress' => 'new-invoice@acme.no',
+    'Name' => 'Acme Corp AS',
+    'EmailAddress' => 'new-invoice@acme.no',
 ]);
 ```
 
@@ -164,16 +169,15 @@ $products = PowerOfficeApi::products()->list();
 
 // Create a product
 $product = PowerOfficeApi::products()->create([
-    'name' => 'Consulting Hour',
-    'description' => 'Standard consulting rate',
-    'salesPrice' => 1500.00,
-    'unitOfMeasure' => 'Hours',
-    'isActive' => true,
+    'Name' => 'Consulting Hour',
+    'Description' => 'Standard consulting rate',
+    'UnitPrice' => 1500.00,
+    'UnitOfMeasureCode' => 'HUR',
 ]);
 
 // Update a product
 $product = PowerOfficeApi::products()->update(100, [
-    'salesPrice' => 1750.00,
+    'UnitPrice' => 1750.00,
 ]);
 ```
 
@@ -190,45 +194,22 @@ $orders = PowerOfficeApi::salesOrders()->list([
 
 // Create a sales order
 $order = PowerOfficeApi::salesOrders()->create([
-    'customerId' => 12345,
-    'orderDate' => '2025-06-01',
-    'salesOrderLines' => [
+    'CustomerId' => 12345,
+    'SalesOrderDate' => '2025-06-01',
+    'SalesOrderLines' => [
         [
-            'productId' => 100,
-            'quantity' => 10,
-            'unitPrice' => 1500.00,
-            'description' => 'Consulting Hours - June',
+            'ProductId' => 100,
+            'Quantity' => 10,
+            'UnitPrice' => 1500.00,
+            'Description' => 'Consulting Hours - June',
         ],
         [
-            'productId' => 200,
-            'quantity' => 1,
-            'unitPrice' => 5000.00,
-            'description' => 'Project setup fee',
+            'ProductId' => 200,
+            'Quantity' => 1,
+            'UnitPrice' => 5000.00,
+            'Description' => 'Project setup fee',
         ],
     ],
-]);
-```
-
-### Direct Endpoint Access
-
-For endpoints without a dedicated resource class, use the client methods directly:
-
-```php
-// GET with query parameters
-$invoices = PowerOfficeApi::get('/Invoices', [
-    'customerId' => 12345,
-    'status' => 'Draft',
-]);
-
-// POST with JSON body
-$result = PowerOfficeApi::post('/Invoices', [
-    'customerId' => 12345,
-    'invoiceLines' => [...],
-]);
-
-// PUT with JSON body
-$result = PowerOfficeApi::put('/Invoices/999', [
-    'status' => 'Approved',
 ]);
 ```
 

@@ -1,0 +1,74 @@
+<?php
+
+namespace Tor2r\PowerOfficeApi\Enums;
+
+enum UnitOfMeasure: string
+{
+    case BX = 'BX';
+    case MTR = 'MTR';
+    case KMT = 'KMT';
+    case KGM = 'KGM';
+    case EA = 'EA';
+    case LTR = 'LTR';
+    case HUR = 'HUR';
+    case DAY = 'DAY';
+    case MTK = 'MTK';
+    case MTQ = 'MTQ';
+    case TNE = 'TNE';
+    case MON = 'MON';
+    case ANN = 'ANN';
+    case QAN = 'QAN';
+    case NL = 'NL';
+    case XRO = 'XRO';
+    case XBA = 'XBA';
+    case XPL = 'XPL';
+    case XPC = 'XPC';
+    case PR = 'PR';
+    case XCI = 'XCI';
+    case XBG = 'XBG';
+    case SET = 'SET';
+    case XTY = 'XTY';
+    case XOF = 'XOF';
+    case FTK = 'FTK';
+    case KWH = 'KWH';
+    case MWH = 'MWH';
+    case LBR = 'LBR';
+    case CMT = 'CMT';
+    case DMT = 'DMT';
+    case LM = 'LM';
+    case XPK = 'XPK';
+    case GRM = 'GRM';
+    case HGM = 'HGM';
+    case XFL = 'XFL';
+    case XBE = 'XBE';
+    case E54 = 'E54';
+    case MMT = 'MMT';
+    case DAA = 'DAA';
+    case H18 = 'H18';
+    case MLT = 'MLT';
+    case HLT = 'HLT';
+    case DLT = 'DLT';
+    case AK = 'AK';
+    case XCR = 'XCR';
+    case E14 = 'E14';
+    case MJ = 'MJ';
+    case J57 = 'J57';
+    case XJG = 'XJG';
+    case XCT = 'XCT';
+    case XSA = 'XSA';
+    case XTU = 'XTU';
+    case WEE = 'WEE';
+    case XCA = 'XCA';
+    case XCN = 'XCN';
+    case NAR = 'NAR';
+    case M4 = 'M4';
+    case XVQ = 'XVQ';
+    case P1 = 'P1';
+    case MFU = 'MFU';
+    case KMK = 'KMK';
+    case LM3 = 'LM3';
+    case FOT = 'FOT';
+    case FM3 = 'FM3';
+    case E34 = 'E34';
+    case E35 = 'E35';
+}
