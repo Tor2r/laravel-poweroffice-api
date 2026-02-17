@@ -2,6 +2,4 @@
 
 namespace Tor2r\PowerOfficeApi\Exceptions;
 
-class PowerOfficeNotFoundException extends PowerOfficeApiException
-{
-}
+class PowerOfficeNotFoundException extends PowerOfficeApiException {}

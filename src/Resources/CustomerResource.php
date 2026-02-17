@@ -8,8 +8,7 @@ class CustomerResource
 {
     public function __construct(
         private readonly PowerOfficeClient $client,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -19,14 +18,14 @@ class CustomerResource
         return $this->client->get("/Customers/{$id}");
     }
 
-
     /**
      * @return array<string, mixed>
      */
     public function getByOrgNr(int $orgNr): array
     {
         $filter = ['organizationNumbers' => $orgNr];
-        return $this->client->get("/Customers", $filter);
+
+        return $this->client->get('/Customers', $filter);
     }
 
     /**

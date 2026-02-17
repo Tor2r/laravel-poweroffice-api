@@ -28,8 +28,7 @@ class PowerOfficeClient
         private readonly string $baseUrl,
         private readonly string $tokenUrl,
         private readonly int $tokenTtl = 900,
-    ) {
-    }
+    ) {}
 
     /**
      * Authenticate with the PowerOffice API and return the access token.
@@ -61,7 +60,7 @@ class PowerOfficeClient
 
         $token = $response->json('access_token');
 
-        if (!$token) {
+        if (! $token) {
             throw new PowerOfficeAuthException(
                 'PowerOffice API did not return an access token.',
                 context: ['body' => $response->body()],
@@ -76,7 +75,7 @@ class PowerOfficeClient
      */
     public function getAccessToken(): string
     {
-        return Cache::remember(self::CACHE_KEY, $this->tokenTtl, fn() => $this->authenticate());
+        return Cache::remember(self::CACHE_KEY, $this->tokenTtl, fn () => $this->authenticate());
     }
 
     /**
@@ -160,7 +159,7 @@ class PowerOfficeClient
             ->acceptJson()
             ->retry(
                 times: 3,
-                sleepMilliseconds: fn(int $attempt) => $attempt * 500,
+                sleepMilliseconds: fn (int $attempt) => $attempt * 500,
                 when: $this->shouldRetry(...),
                 throw: false,
             )
@@ -256,7 +255,7 @@ class PowerOfficeClient
      */
     private function shouldRetry(\Throwable $exception, PendingRequest $request): bool
     {
-        if (!$exception instanceof RequestException) {
+        if (! $exception instanceof RequestException) {
             return false;
         }
 
