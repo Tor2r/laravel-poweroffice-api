@@ -13,7 +13,7 @@ class SalesOrderResource
     /**
      * @return array<string, mixed>
      */
-    public function get(int $id): array
+    public function get(string $id): array
     {
         return $this->client->get("/SalesOrders/{$id}");
     }

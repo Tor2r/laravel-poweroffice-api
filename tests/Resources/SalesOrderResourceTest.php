@@ -20,17 +20,19 @@ beforeEach(function () {
 });
 
 it('gets a sales order by id', function () {
+    $uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
     Http::fake([
         '*/OAuth/Token' => Http::response(['access_token' => 'test-token']),
-        '*/v2/SalesOrders/7' => Http::response(['id' => 7, 'total' => 1500]),
+        "*/v2/SalesOrders/{$uuid}" => Http::response(['id' => $uuid, 'total' => 1500]),
     ]);
 
-    $result = $this->resource->get(7);
+    $result = $this->resource->get($uuid);
 
-    expect($result)->toBe(['id' => 7, 'total' => 1500]);
+    expect($result)->toBe(['id' => $uuid, 'total' => 1500]);
 
     Http::assertSent(fn ($request) => $request->method() === 'GET'
-        && str_contains($request->url(), '/SalesOrders/7'));
+        && str_contains($request->url(), "/SalesOrders/{$uuid}"));
 });
 
 it('lists sales orders with filters', function () {

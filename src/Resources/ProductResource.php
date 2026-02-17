@@ -37,11 +37,11 @@ class ProductResource
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $operations
      * @return array<string, mixed>
      */
-    public function update(int $id, array $data): array
+    public function update(int $id, array $operations): array
     {
-        return $this->client->put("/Products/{$id}", $data);
+        return $this->client->patch("/Products/{$id}", $operations);
     }
 }

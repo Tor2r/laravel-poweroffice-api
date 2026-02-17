@@ -4,29 +4,18 @@ namespace Tor2r\PowerOfficeApi\Resources;
 
 use Tor2r\PowerOfficeApi\PowerOfficeClient;
 
-class CustomerResource
+class ProjectResource
 {
     public function __construct(
         private readonly PowerOfficeClient $client,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function get(int $id): array
     {
-        return $this->client->get("/Customers/{$id}");
-    }
-
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getByOrgNr(int $orgNr): array
-    {
-        $filter = ['organizationNumbers' => $orgNr];
-        return $this->client->get("/Customers", $filter);
+        return $this->client->get("/Projects/{$id}");
     }
 
     /**
@@ -35,7 +24,7 @@ class CustomerResource
      */
     public function list(array $filters = []): array
     {
-        return $this->client->get('/Customers', $filters);
+        return $this->client->get('/Projects', $filters);
     }
 
     /**
@@ -44,7 +33,7 @@ class CustomerResource
      */
     public function create(array $data): array
     {
-        return $this->client->post('/Customers', $data);
+        return $this->client->post('/Projects', $data);
     }
 
     /**
@@ -53,6 +42,6 @@ class CustomerResource
      */
     public function update(int $id, array $operations): array
     {
-        return $this->client->patch("/Customers/{$id}", $operations);
+        return $this->client->patch("/Projects/{$id}", $operations);
     }
 }

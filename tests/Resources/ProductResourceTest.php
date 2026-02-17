@@ -63,17 +63,20 @@ it('creates a product', function () {
         && $request['name'] === 'Gadget');
 });
 
-it('updates a product', function () {
+it('updates a product with patch operations', function () {
     Http::fake([
         '*/OAuth/Token' => Http::response(['access_token' => 'test-token']),
         '*/v2/Products/10' => Http::response(['id' => 10, 'name' => 'Updated Widget']),
     ]);
 
-    $result = $this->resource->update(10, ['name' => 'Updated Widget']);
+    $operations = [
+        ['op' => 'replace', 'path' => '/Name', 'value' => 'Updated Widget'],
+    ];
+
+    $result = $this->resource->update(10, $operations);
 
     expect($result)->toMatchArray(['id' => 10, 'name' => 'Updated Widget']);
 
-    Http::assertSent(fn ($request) => $request->method() === 'PUT'
-        && str_contains($request->url(), '/Products/10')
-        && $request['name'] === 'Updated Widget');
+    Http::assertSent(fn ($request) => $request->method() === 'PATCH'
+        && str_contains($request->url(), '/Products/10'));
 });

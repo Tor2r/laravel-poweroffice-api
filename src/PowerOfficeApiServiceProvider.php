@@ -10,7 +10,7 @@ class PowerOfficeApiServiceProvider extends PackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('laravel-poweroffice-api')
+            ->name('poweroffice-api')
             ->hasConfigFile('poweroffice-api');
     }
 

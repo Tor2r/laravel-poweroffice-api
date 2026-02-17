@@ -5,7 +5,8 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/tor2r/laravel-poweroffice-api/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/tor2r/laravel-poweroffice-api/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/tor2r/laravel-poweroffice-api.svg?style=flat-square)](https://packagist.org/packages/tor2r/laravel-poweroffice-api)
 
-A Laravel client library for communicating with the [PowerOffice Go REST API](https://developer.poweroffice.net/) using OAuth 2.0 Client Credentials. Provides a clean, resource-based
+A Laravel client library for communicating with the [PowerOffice Go REST API](https://developer.poweroffice.net/) using OAuth 2.0 Client Credentials.
+Provides a clean, resource-based
 interface with automatic token caching, retry logic, and comprehensive error handling.
 
 ## Installation
@@ -19,7 +20,7 @@ composer require tor2r/laravel-poweroffice-api
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-poweroffice-api-config"
+php artisan vendor:publish --tag="poweroffice-api-config"
 ```
 
 ## Configuration
@@ -52,8 +53,8 @@ return [
             'token_url' => 'https://goapi.poweroffice.net/OAuth/Token',
         ],
         'demo' => [
-            'base_url' => 'https://goapi-demo.poweroffice.net/v2',
-            'token_url' => 'https://goapi-demo.poweroffice.net/OAuth/Token',
+            'base_url' => 'https://goapi.poweroffice.net/Demo/OAuth/Token',
+            'token_url' => 'https://goapi.poweroffice.net/Demo/OAuth/Token',
         ],
     ],
 
@@ -81,14 +82,14 @@ public function __construct(private PowerOfficeClient $powerOffice) {}
 
 ### Client Methods
 
-| Method                                            | Description                                  |
-|---------------------------------------------------|----------------------------------------------|
-| `authenticate(): string`                          | Authenticate and return a fresh access token |
-| `getAccessToken(): string`                        | Get cached token (authenticates if needed)   |
-| `flushToken(): void`                              | Clear the cached token                       |
-| `get(string $endpoint, array $query = []): array` | Send a GET request                           |
-| `post(string $endpoint, array $data = []): array` | Send a POST request                          |
-| `put(string $endpoint, array $data = []): array`  | Send a PUT request                           |
+| Method                                             | Description                                  |
+|----------------------------------------------------|----------------------------------------------|
+| `authenticate(): string`                           | Authenticate and return a fresh access token |
+| `getAccessToken(): string`                         | Get cached token (authenticates if needed)   |
+| `flushToken(): void`                               | Clear the cached token                       |
+| `get(string $endpoint, array $query = []): array`  | Send a GET request                           |
+| `post(string $endpoint, array $data = []): array`  | Send a POST request                          |
+| `patch(string $endpoint, array $data = []): array` | Send a PATCH request                         |
 
 ### Resources
 
@@ -96,35 +97,48 @@ public function __construct(private PowerOfficeClient $powerOffice) {}
 |-------------------------------------|-------------------------------|
 | `customers(): CustomerResource`     | Get the customers resource    |
 | `products(): ProductResource`       | Get the products resource     |
+| `projects(): ProjectResource`       | Get the projects resource     |
 | `salesOrders(): SalesOrderResource` | Get the sales orders resource |
 
 ### [CustomerResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Customers)
 
-| Method                                | Description                          |
-|---------------------------------------|--------------------------------------|
-| `get(int $id): array`                 | Get a single customer                |
-| `list(array $filters = []): array`    | List customers with optional filters |
-| `create(array $data): array`          | Create a customer                    |
-| `update(int $id, array $data): array` | Update a customer                    |
+| Method                                      | Description                                        |
+|---------------------------------------------|----------------------------------------------------|
+| `get(int $id): array`                       | Get a single customer                              |
+| `getByOrgNr(int $id): array`                | Get a single customer by org nr.                   |
+| `list(array $filters = []): array`          | List customers with optional filters               |
+| `create(array $data): array`                | Create a customer                                  |
+| `update(int $id, array $operations): array` | Update a customer (JSON Patch RFC 6902 operations) |
 
 ### [ProductResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Products%20and%20Product%20Groups)
 
-| Method                                | Description                         |
-|---------------------------------------|-------------------------------------|
-| `get(int $id): array`                 | Get a single product                |
-| `list(array $filters = []): array`    | List products with optional filters |
-| `create(array $data): array`          | Create a product                    |
-| `update(int $id, array $data): array` | Update a product                    |
+| Method                                      | Description                                       |
+|---------------------------------------------|---------------------------------------------------|
+| `get(int $id): array`                       | Get a single product                              |
+| `list(array $filters = []): array`          | List products with optional filters               |
+| `create(array $data): array`                | Create a product                                  |
+| `update(int $id, array $operations): array` | Update a product (JSON Patch RFC 6902 operations) |
+
+### [ProjectResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Projects)
+
+| Method                                      | Description                                       |
+|---------------------------------------------|---------------------------------------------------|
+| `get(int $id): array`                       | Get a single project                              |
+| `list(array $filters = []): array`          | List projects with optional filters               |
+| `create(array $data): array`                | Create a project                                  |
+| `update(int $id, array $operations): array` | Update a project (JSON Patch RFC 6902 operations) |
 
 ### [SalesOrderResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Sales%20Orders)
 
 | Method                             | Description                             |
 |------------------------------------|-----------------------------------------|
-| `get(int $id): array`              | Get a single sales order                |
+| `get(string $id): array`           | Get a single sales order (UUID)         |
 | `list(array $filters = []): array` | List sales orders with optional filters |
 | `create(array $data): array`       | Create a sales order                    |
 
 ## Examples
+
+Each resource links to the corresponding PowerOffice API documentation for a complete list of parameter / attribute names.
 
 ### Customers
 
@@ -134,8 +148,7 @@ $customer = PowerOfficeApi::customers()->get(12345);
 
 // List customers with filters
 $customers = PowerOfficeApi::customers()->list([
-    'lastModifiedDateTimeOffsetGreaterThan' => '2025-01-01T00:00:00+00:00',
-    'isActive' => 'true',
+    'lastChangedDateTimeOffsetGreaterThan' => '2025-01-01T00:00:00+00:00',
 ]);
 
 // Create a customer
@@ -151,10 +164,10 @@ $customer = PowerOfficeApi::customers()->create([
     ],
 ]);
 
-// Update a customer
+// Update a customer (JSON Patch RFC 6902)
 $customer = PowerOfficeApi::customers()->update(12345, [
-    'Name' => 'Acme Corp AS',
-    'EmailAddress' => 'new-invoice@acme.no',
+    ['op' => 'replace', 'path' => '/Name', 'value' => 'Acme Corp AS'],
+    ['op' => 'replace', 'path' => '/EmailAddress', 'value' => 'new-invoice@acme.no'],
 ]);
 ```
 
@@ -175,21 +188,53 @@ $product = PowerOfficeApi::products()->create([
     'UnitOfMeasureCode' => 'HUR',
 ]);
 
-// Update a product
+// Update a product (JSON Patch RFC 6902)
 $product = PowerOfficeApi::products()->update(100, [
-    'UnitPrice' => 1750.00,
+    ['op' => 'replace', 'path' => '/UnitPrice', 'value' => 1750.00],
+]);
+```
+
+### Projects
+
+```php
+// Get a single project
+$project = PowerOfficeApi::projects()->get(300);
+
+// List active projects
+$projects = PowerOfficeApi::projects()->list([
+    'status' => 'Active',
+    'excludeArchivedProject' => true,
+]);
+
+// Create a project
+$project = PowerOfficeApi::projects()->create([
+    'Name' => 'Website Redesign',
+    'Code' => 'WEB-001',
+    'CustomerId' => 12345,
+    'StartDate' => '2025-06-01',
+    'EndDate' => '2025-12-31',
+    'ProjectBillingMethod' => 'TimeAndExpenses',
+    'IsBillable' => true,
+    'BillableRate' => 1500.00,
+    'BudgetedHours' => 200,
+]);
+
+// Update a project (JSON Patch RFC 6902)
+$project = PowerOfficeApi::projects()->update(300, [
+    ['op' => 'replace', 'path' => '/Name', 'value' => 'Website Redesign v2'],
+    ['op' => 'replace', 'path' => '/BudgetedHours', 'value' => 250],
 ]);
 ```
 
 ### Sales Orders
 
 ```php
-// Get a single sales order
-$order = PowerOfficeApi::salesOrders()->get(5001);
+// Get a single sales order (UUID)
+$order = PowerOfficeApi::salesOrders()->get('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
 
 // List sales orders
 $orders = PowerOfficeApi::salesOrders()->list([
-    'customerId' => 12345,
+    'customerNos' => '12345',
 ]);
 
 // Create a sales order
@@ -215,24 +260,44 @@ $order = PowerOfficeApi::salesOrders()->create([
 
 ## Error Handling
 
-The client throws three exception types:
+The client throws specific exceptions based on the API response code:
+
+| Exception                        | Status Code | Description                         |
+|----------------------------------|-------------|-------------------------------------|
+| `PowerOfficeValidationException` | 400, 422    | Bad request or validation errors    |
+| `PowerOfficeAuthException`       | 401, 403    | Unauthorized or forbidden           |
+| `PowerOfficeNotFoundException`   | 404         | Resource not found                  |
+| `PowerOfficeConflictException`   | 409         | Resource in use, cannot be deleted  |
+| `PowerOfficeApiException`        | 429, 5xx    | Rate limit exceeded or server error |
+
+`PowerOfficeNotFoundException` and `PowerOfficeConflictException` extend `PowerOfficeApiException`, so you can catch the base class for any API error.
+
+A `204 No Content` response (e.g. successful delete) returns an empty array.
 
 ```php
-use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeAuthException;
 use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeApiException;
+use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeAuthException;
+use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeConflictException;
+use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeNotFoundException;
 use Tor2r\PowerOfficeApi\Exceptions\PowerOfficeValidationException;
 
 try {
     $customer = PowerOfficeApi::customers()->create($data);
 } catch (PowerOfficeValidationException $e) {
-    // 422 -- validation errors from the API
+    // 400 / 422 -- bad request or validation errors
     $e->errors;   // ['name' => ['Name is required']]
     $e->response; // Illuminate\Http\Client\Response
 } catch (PowerOfficeAuthException $e) {
-    // OAuth failure (bad credentials, token endpoint down)
-    $e->context;  // ['status' => 401, 'body' => '...']
+    // 401 / 403 -- unauthorized or forbidden
+    $e->context;  // ['body' => '...']
+} catch (PowerOfficeNotFoundException $e) {
+    // 404 -- resource does not exist
+    $e->response; // Illuminate\Http\Client\Response
+} catch (PowerOfficeConflictException $e) {
+    // 409 -- resource is in use, cannot be deleted
+    $e->response; // Illuminate\Http\Client\Response
 } catch (PowerOfficeApiException $e) {
-    // Any other 4xx/5xx error
+    // 429 / 5xx -- rate limit or server error (base class for all API errors)
     $e->response; // Illuminate\Http\Client\Response
     $e->getCode(); // HTTP status code
 }

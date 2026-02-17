@@ -38,8 +38,8 @@ return [
             'token_url' => 'https://goapi.poweroffice.net/OAuth/Token',
         ],
         'demo' => [
-            'base_url' => 'https://goapi-demo.poweroffice.net/v2',
-            'token_url' => 'https://goapi-demo.poweroffice.net/OAuth/Token',
+            'base_url' => 'https://goapi.poweroffice.net/demo/v2',
+            'token_url' => 'https://goapi.poweroffice.net/Demo/OAuth/Token',
         ],
     ],
 

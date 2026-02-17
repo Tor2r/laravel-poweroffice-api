@@ -63,17 +63,20 @@ it('creates a customer', function () {
         && $request['name'] === 'New Co');
 });
 
-it('updates a customer', function () {
+it('updates a customer with patch operations', function () {
     Http::fake([
         '*/OAuth/Token' => Http::response(['access_token' => 'test-token']),
         '*/v2/Customers/42' => Http::response(['id' => 42, 'name' => 'Updated']),
     ]);
 
-    $result = $this->resource->update(42, ['name' => 'Updated']);
+    $operations = [
+        ['op' => 'replace', 'path' => '/Name', 'value' => 'Updated'],
+    ];
+
+    $result = $this->resource->update(42, $operations);
 
     expect($result)->toMatchArray(['id' => 42, 'name' => 'Updated']);
 
-    Http::assertSent(fn ($request) => $request->method() === 'PUT'
-        && str_contains($request->url(), '/Customers/42')
-        && $request['name'] === 'Updated');
+    Http::assertSent(fn ($request) => $request->method() === 'PATCH'
+        && str_contains($request->url(), '/Customers/42'));
 });
