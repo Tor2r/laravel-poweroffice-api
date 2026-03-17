@@ -105,7 +105,7 @@ public function __construct(private PowerOfficeClient $powerOffice) {}
 | Method                                      | Description                                        |
 |---------------------------------------------|----------------------------------------------------|
 | `get(int $id): array`                       | Get a single customer                              |
-| `getByOrgNr(int $id): array`                | Get a single customer by org nr.                   |
+| `getByOrgNr(int $id): array`                | Get customers by organization nr. OBS! Not unique. |
 | `list(array $filters = []): array`          | List customers with optional filters               |
 | `create(array $data): array`                | Create a customer                                  |
 | `update(int $id, array $operations): array` | Update a customer (JSON Patch RFC 6902 operations) |

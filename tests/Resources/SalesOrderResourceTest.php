@@ -53,7 +53,7 @@ it('lists sales orders with filters', function () {
 it('creates a sales order', function () {
     Http::fake([
         '*/OAuth/Token' => Http::response(['access_token' => 'test-token']),
-        '*/v2/SalesOrders' => Http::response(['id' => 100, 'customerId' => 42], 201),
+        '*/v2/SalesOrders/Complete' => Http::response(['id' => 100, 'customerId' => 42], 201),
     ]);
 
     $result = $this->resource->create(['customerId' => 42, 'lines' => []]);
@@ -61,6 +61,6 @@ it('creates a sales order', function () {
     expect($result)->toMatchArray(['id' => 100, 'customerId' => 42]);
 
     Http::assertSent(fn ($request) => $request->method() === 'POST'
-        && str_contains($request->url(), '/SalesOrders')
+        && str_contains($request->url(), '/SalesOrders/Complete')
         && $request['customerId'] === 42);
 });

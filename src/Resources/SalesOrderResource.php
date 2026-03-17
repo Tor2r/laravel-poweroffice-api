@@ -33,6 +33,6 @@ class SalesOrderResource
      */
     public function create(array $data): array
     {
-        return $this->client->post('/SalesOrders', $data);
+        return $this->client->post('/SalesOrders/Complete', $data);
     }
 }
