@@ -8,8 +8,7 @@ class SalesOrderResource
 {
     public function __construct(
         private readonly PowerOfficeClient $client,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, mixed>
