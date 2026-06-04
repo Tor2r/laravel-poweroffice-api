@@ -130,11 +130,12 @@ public function __construct(private PowerOfficeClient $powerOffice) {}
 
 ### [SalesOrderResource](https://prdm0go0stor0apiv20eurw.z6.web.core.windows.net/?urls.primaryName=Sales%20Orders)
 
-| Method                             | Description                             |
-|------------------------------------|-----------------------------------------|
-| `get(string $id): array`           | Get a single sales order (UUID)         |
-| `list(array $filters = []): array` | List sales orders with optional filters |
-| `create(array $data): array`       | Create a sales order                    |
+| Method                             | Description                                        |
+|------------------------------------|----------------------------------------------------|
+| `get(string $id): array`           | Get a single sales order (UUID)                    |
+| `getComplete(string $id): array`   | Get a complete sales order with order lines (UUID) |
+| `list(array $filters = []): array` | List sales orders with optional filters            |
+| `create(array $data): array`       | Create a sales order                               |
 
 ## Examples
 
@@ -231,6 +232,9 @@ $project = PowerOfficeApi::projects()->update(300, [
 ```php
 // Get a single sales order (UUID)
 $order = PowerOfficeApi::salesOrders()->get('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+
+// Get a complete sales order with order lines (UUID)
+$order = PowerOfficeApi::salesOrders()->getComplete('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
 
 // List sales orders
 $orders = PowerOfficeApi::salesOrders()->list([

@@ -8,7 +8,8 @@ class SalesOrderResource
 {
     public function __construct(
         private readonly PowerOfficeClient $client,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, mixed>
@@ -16,6 +17,14 @@ class SalesOrderResource
     public function get(string $id): array
     {
         return $this->client->get("/SalesOrders/{$id}");
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getComplete(string $id): array
+    {
+        return $this->client->get("/SalesOrders/{$id}/Complete");
     }
 
     /**

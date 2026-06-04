@@ -35,6 +35,23 @@ it('gets a sales order by id', function () {
         && str_contains($request->url(), "/SalesOrders/{$uuid}"));
 });
 
+it('gets a complete sales order by id', function () {
+    $uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
+    Http::fake([
+        '*/OAuth/Token' => Http::response(['access_token' => 'test-token']),
+        "*/v2/SalesOrders/{$uuid}/Complete" => Http::response(['id' => $uuid, 'total' => 1500, 'lines' => [['productId' => 1, 'quantity' => 2]]]),
+    ]);
+
+    $result = $this->resource->getComplete($uuid);
+
+    expect($result)->toMatchArray(['id' => $uuid, 'total' => 1500])
+        ->and($result['lines'])->toHaveCount(1);
+
+    Http::assertSent(fn ($request) => $request->method() === 'GET'
+        && str_contains($request->url(), "/SalesOrders/{$uuid}/Complete"));
+});
+
 it('lists sales orders with filters', function () {
     Http::fake([
         '*/OAuth/Token' => Http::response(['access_token' => 'test-token']),

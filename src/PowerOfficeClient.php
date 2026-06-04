@@ -28,7 +28,8 @@ class PowerOfficeClient
         private readonly string $baseUrl,
         private readonly string $tokenUrl,
         private readonly int $tokenTtl = 900,
-    ) {}
+    ) {
+    }
 
     /**
      * Authenticate with the PowerOffice API and return the access token.
@@ -60,7 +61,7 @@ class PowerOfficeClient
 
         $token = $response->json('access_token');
 
-        if (! $token) {
+        if (!$token) {
             throw new PowerOfficeAuthException(
                 'PowerOffice API did not return an access token.',
                 context: ['body' => $response->body()],
@@ -75,7 +76,7 @@ class PowerOfficeClient
      */
     public function getAccessToken(): string
     {
-        return Cache::remember(self::CACHE_KEY, $this->tokenTtl, fn () => $this->authenticate());
+        return Cache::remember(self::CACHE_KEY, $this->tokenTtl, fn() => $this->authenticate());
     }
 
     /**
@@ -159,7 +160,7 @@ class PowerOfficeClient
             ->acceptJson()
             ->retry(
                 times: 3,
-                sleepMilliseconds: fn (int $attempt) => $attempt * 500,
+                sleepMilliseconds: fn(int $attempt) => $attempt * 500,
                 when: $this->shouldRetry(...),
                 throw: false,
             )
@@ -178,7 +179,7 @@ class PowerOfficeClient
         // 400 Bad Request – request is badly formatted
         if ($response->status() === 400) {
             throw new PowerOfficeValidationException(
-                'Bad request to PowerOffice API.',
+                $this->apiMessage($response, 'Bad request to PowerOffice API.'),
                 errors: $response->json('errors', []),
                 response: $response,
                 code: 400,
@@ -188,7 +189,7 @@ class PowerOfficeClient
         // 401 Unauthorized – access token is missing or invalid (retries exhausted)
         if ($response->status() === 401) {
             throw new PowerOfficeAuthException(
-                'Unauthorized: Access token is missing or invalid.',
+                $this->apiMessage($response, 'Unauthorized: Access token is missing or invalid.'),
                 context: ['body' => $response->body()],
                 code: 401,
             );
@@ -197,7 +198,7 @@ class PowerOfficeClient
         // 403 Forbidden – integration lacks required permission
         if ($response->status() === 403) {
             throw new PowerOfficeAuthException(
-                'Forbidden: Integration does not have required permission to use this endpoint.',
+                $this->apiMessage($response, 'Forbidden: Integration does not have required permission to use this endpoint.'),
                 context: ['body' => $response->body()],
                 code: 403,
             );
@@ -206,7 +207,7 @@ class PowerOfficeClient
         // 404 Not Found – resource does not exist
         if ($response->status() === 404) {
             throw new PowerOfficeNotFoundException(
-                'Resource not found in PowerOffice API.',
+                $this->apiMessage($response, 'Resource not found in PowerOffice API.'),
                 response: $response,
                 code: 404,
             );
@@ -215,7 +216,7 @@ class PowerOfficeClient
         // 409 Conflict – resource is in use and cannot be deleted
         if ($response->status() === 409) {
             throw new PowerOfficeConflictException(
-                'Resource is in use and cannot be deleted.',
+                $this->apiMessage($response, 'Resource is in use and cannot be deleted.'),
                 response: $response,
                 code: 409,
             );
@@ -224,7 +225,7 @@ class PowerOfficeClient
         // 422 Unprocessable Entity – validation errors
         if ($response->status() === 422) {
             throw new PowerOfficeValidationException(
-                'Validation error from PowerOffice API.',
+                $this->apiMessage($response, 'Validation error from PowerOffice API.'),
                 errors: $response->json('errors', []),
                 response: $response,
                 code: 422,
@@ -234,7 +235,7 @@ class PowerOfficeClient
         // 429 Too Many Requests – rate limit exceeded (retries exhausted)
         if ($response->status() === 429) {
             throw new PowerOfficeApiException(
-                'PowerOffice API rate limit exceeded.',
+                $this->apiMessage($response, 'PowerOffice API rate limit exceeded.'),
                 response: $response,
                 code: 429,
             );
@@ -242,10 +243,26 @@ class PowerOfficeClient
 
         // Default – any other error returns a ProblemDetail object
         throw new PowerOfficeApiException(
-            "PowerOffice API request failed with status {$response->status()}.",
+            $this->apiMessage($response, "PowerOffice API request failed with status {$response->status()}."),
             response: $response,
             code: $response->status(),
         );
+    }
+
+    /**
+     * Build an exception message from the API response's ProblemDetail fields,
+     * falling back to a generic message if neither is present.
+     */
+    private function apiMessage(Response $response, string $fallback): string
+    {
+        $title = $response->json('title');
+        $detail = $response->json('detail');
+
+        if ($title && $detail) {
+            return $title.' '.$detail;
+        }
+
+        return $title ?? $detail ?? $fallback;
     }
 
     /**
@@ -255,7 +272,7 @@ class PowerOfficeClient
      */
     private function shouldRetry(\Throwable $exception, PendingRequest $request): bool
     {
-        if (! $exception instanceof RequestException) {
+        if (!$exception instanceof RequestException) {
             return false;
         }
 
