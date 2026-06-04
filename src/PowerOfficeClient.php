@@ -41,7 +41,7 @@ class PowerOfficeClient
     {
         $response = Http::asForm()
             ->withHeaders([
-                'Authorization' => 'Basic ' . base64_encode("{$this->appKey}:{$this->clientKey}"),
+                'Authorization' => 'Basic '.base64_encode("{$this->appKey}:{$this->clientKey}"),
                 'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
             ])
             ->post($this->tokenUrl, [
@@ -88,7 +88,7 @@ class PowerOfficeClient
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param  array<string, mixed>  $query
      * @return array<string, mixed>
      */
     public function get(string $endpoint, array $query = []): array
@@ -97,7 +97,7 @@ class PowerOfficeClient
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     public function post(string $endpoint, array $data = []): array
@@ -106,7 +106,7 @@ class PowerOfficeClient
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     public function patch(string $endpoint, array $data = []): array
@@ -140,7 +140,7 @@ class PowerOfficeClient
      * Retries up to 3 times with exponential backoff on 401 (after flushing token),
      * 429, and 5xx responses.
      *
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $options
      * @return array<string, mixed>
      *
      * @throws PowerOfficeApiException
@@ -151,7 +151,7 @@ class PowerOfficeClient
      */
     private function sendRequest(string $method, string $endpoint, array $options = []): array
     {
-        $url = rtrim($this->baseUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->baseUrl, '/').'/'.ltrim($endpoint, '/');
 
         $response = Http::withToken($this->getAccessToken())
             ->withHeaders([
@@ -259,7 +259,7 @@ class PowerOfficeClient
         $detail = $response->json('detail');
 
         if ($title && $detail) {
-            return $title . ' ' . $detail;
+            return $title.' '.$detail;
         }
 
         return $title ?? $detail ?? $fallback;
