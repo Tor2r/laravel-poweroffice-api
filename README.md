@@ -9,6 +9,11 @@ A Laravel client library for communicating with the [PowerOffice Go REST API](ht
 Provides a clean, resource-based
 interface with automatic token caching, retry logic, and comprehensive error handling.
 
+## Requirements
+
+- PHP 8.2+ (PHP 8.3+ when using Laravel 13)
+- Laravel 11, 12 or 13
+
 ## Installation
 
 You can install the package via composer:
